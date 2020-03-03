@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/memory_item_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:background="@color/very_light_gray" >
+
+    <TextView
+        android:id="@+id/text_view_memory_item_value_shower"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:padding="8dp"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button_delete_memory_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_memory_clear_text"
+        app:layout_constraintEnd_toStartOf="@id/button_add_to_item_memory_value"
+        app:layout_constraintTop_toBottomOf="@id/text_view_memory_item_value_shower" /> />
+
+    <Button
+        android:id="@+id/button_add_to_item_memory_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_memory_add_text"
+        app:layout_constraintEnd_toStartOf="@id/button_item_subtract_from_memory"
+        app:layout_constraintTop_toBottomOf="@id/text_view_memory_item_value_shower" />
+
+    <Button
+        android:id="@+id/button_item_subtract_from_memory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_memory_subtract_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_view_memory_item_value_shower" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
