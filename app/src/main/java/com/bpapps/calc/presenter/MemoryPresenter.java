@@ -2,7 +2,6 @@ package com.bpapps.calc.presenter;
 
 import com.bpapps.calc.contractsmvp.IMemoryContract;
 import com.bpapps.calc.contractsmvp.IModel;
-import com.bpapps.calc.model.HistoryEntry;
 import com.bpapps.calc.model.MemoryEntry;
 
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ public class MemoryPresenter
 
     @Override
     public boolean isViewAttached() {
-        return mView == null;
+        return mView != null;
     }
 
     @Override
@@ -61,7 +60,9 @@ public class MemoryPresenter
     @Override
     public void clearDataBase() {
         mModel.clearMemoryDataBase();
-        mView.onDataBaseUpdated();
+
+        if (isViewAttached())
+            mView.onDataBaseUpdated();
     }
 
     @Override
@@ -97,7 +98,8 @@ public class MemoryPresenter
     @Override
     public void addToDataBase(MemoryEntry item) {
         mModel.addToMemoryDataBase(item);
-        mView.onDataBaseUpdated();
+        if(isViewAttached())
+            mView.onDataBaseUpdated();
     }
 
     @Override

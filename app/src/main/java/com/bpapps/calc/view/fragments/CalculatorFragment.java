@@ -195,7 +195,10 @@ public class CalculatorFragment extends Fragment
                         MathematicalOperation.INVERSE);
                 break;
             case R.id.button_math_operation_percentage:
-                onClickPercentageOperand();
+                onClickOneParamOperand(
+                        getResources().getString(R.string.percentage_sign_text_format),
+                        getResources().getString(R.string.percentage_sign),
+                        MathematicalOperation.PERCENTAGE);
                 break;
             case R.id.button_math_operation_power_2:
                 onClickOneParamOperand(
@@ -246,12 +249,18 @@ public class CalculatorFragment extends Fragment
 
     private void clearMemoryDataBase() {
         mMemoryPresenter.clearDataBase();
+        Toast.makeText(requireContext(), "Memory deleted", Toast.LENGTH_LONG).show();
+
     }
 
     private void memoryRecall() {
         MemoryEntry item = mMemoryPresenter.getMemoryItem(0);
-        clearAll();
-        updateTextViewResultInputShower(item.getValue() + "");
+        if (item == null) {
+            Toast.makeText(requireContext(), "Memory empty", Toast.LENGTH_LONG).show();
+        } else {
+            clearAll();
+            updateTextViewResultInputShower(item.getValue() + "");
+        }
     }
 
     private void addToMemory() {
@@ -273,11 +282,6 @@ public class CalculatorFragment extends Fragment
         mMemoryPresenter.addToDataBase(item);
     }
 
-    private void onClickPercentageOperand() {
-        //TODO private void onClickPercentageOperand()
-
-    }
-
     private void onClickOneParamOperand(String operandFormatString, String operandSign, @MathematicalOperation int operand) {
         updateFormulaOneParamOperand(operandFormatString, operand);
 
@@ -292,14 +296,26 @@ public class CalculatorFragment extends Fragment
         if (mFirstNumber) {
             mFirstNumber = false;
             mNum1 = getNumberFromInput();
-            text = String.format(operandFormatString, mNum1);
+
+            text = String.format(operandFormatString, getCurrInput());
+
+            if(operand == MathematicalOperation.PERCENTAGE) {
+                text = text + getResources().getString(R.string.percentage_sign);
+            }
+
             mFormula = new StringBuilder(text);
         } else if (isFormulaContainsTwoParamsOperand()) {
             mNum2 = getNumberFromInput();
             mFormula.append(String.format(operandFormatString, mNum2));
         } else {
             mNum2 = getNumberFromInput();
-            text = String.format(operandFormatString, mFormula.toString());
+
+            text = String.format(operandFormatString, mNum2);
+
+            if (operand == MathematicalOperation.PERCENTAGE) {
+                text = text + getResources().getString(R.string.percentage_sign);
+            }
+
             mFormula = new StringBuilder(text);
         }
 
