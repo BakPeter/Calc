@@ -1,7 +1,6 @@
 package com.bpapps.calc.contractsmvp;
 
 import com.bpapps.calc.presenter.applogic.MathematicalCalculableOperationResult;
-import com.bpapps.calc.presenter.applogic.MathematicalOperation;
 import com.bpapps.calc.presenter.applogic.Params;
 
 public interface ICalculatorContract {
