@@ -49,4 +49,13 @@ public class MathematicalCalculableOperationResult {
 
         return false;
     }
+
+    public boolean isUnaryOperand() {
+        switch (mOperand) {
+            case MathematicalOperation.PERCENTAGE:
+                return true;
+            default:
+                return false;
+        }
+    }
 }

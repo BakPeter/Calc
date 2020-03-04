@@ -69,6 +69,12 @@ public class MemoryFragment extends Fragment
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        onDataBaseUpdated();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         mPresenter.detachView();

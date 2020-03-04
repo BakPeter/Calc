@@ -10,10 +10,14 @@
     <TextView
         android:id="@+id/text_view_formula_shower"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="70dp"
         android:padding="16dp"
         android:textAlignment="textEnd"
         android:textSize="30sp"
+        app:autoSizeMaxTextSize="100sp"
+        app:autoSizeMinTextSize="12sp"
+        app:autoSizeStepGranularity="2sp"
+        app:autoSizeTextType="uniform"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -21,11 +25,12 @@
     <TextView
         android:id="@+id/text_view_input_and_result_shower"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="70dp"
         android:padding="16dp"
         android:textAlignment="textEnd"
-        android:textSize="36sp"
+        android:textSize="30sp"
         android:textStyle="bold"
+        app:autoSizeTextType="uniform"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_view_formula_shower" />
@@ -39,11 +44,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_view_input_and_result_shower">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.3" />
 
 
         <LinearLayout
@@ -107,71 +107,41 @@
                 style="@style/math_operations_button"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="0.25"
+                android:layout_weight="0.2"
                 android:text="@string/button_math_operation_percentage_text" />
-
-            <Button
-                android:id="@+id/button_input_manipulation_clear_all_input_entry"
-                style="@style/input_manipulation_button"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:text="@string/button_input_manipulation_clear_all_input_entry_text" />
-
-            <Button
-                android:id="@+id/button_input_manipulation_clear_all"
-                style="@style/input_manipulation_button"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:text="@string/button_input_manipulation_clear_all_text" />
-
-            <Button
-                android:id="@+id/button_input_manipulation_delete_last_character"
-                style="@style/input_manipulation_button"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:text="@string/button_input_manipulation_delete_last_character_text" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.1"
-            android:gravity="center">
-
-            <Button
-                android:id="@+id/button_math_operation_inverse"
-                style="@style/math_operations_button"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:text="@string/button_math_operation_inverse_text" />
-
-            <Button
-                android:id="@+id/button_math_operation_power_2"
-                style="@style/math_operations_button"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:text="@string/button_math_operation_power_2_text" />
-
-            <Button
-                android:id="@+id/button_math_operation_square_root"
-                style="@style/math_operations_button"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:text="@string/button_math_operation_square_root_text" />
 
             <Button
                 android:id="@+id/button_math_operation_divide"
                 style="@style/math_operations_button"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="0.25"
+                android:layout_weight="0.2"
                 android:text="@string/button_math_operation_divide_text" />
+
+            <Button
+                android:id="@+id/button_math_operation_multiply"
+                style="@style/math_operations_button"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.2"
+                android:text="@string/button_math_operation_multiply_text" />
+
+            <Button
+                android:id="@+id/button_math_operation_subtract"
+                style="@style/math_operations_button"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.2"
+                android:text="@string/button_math_operation_subtract_text" />
+
+            <Button
+                android:id="@+id/button_math_operation_add"
+                style="@style/math_operations_button"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.2"
+                android:text="@string/button_math_operation_add_text" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -204,13 +174,16 @@
                 android:layout_weight="0.25"
                 android:text="@string/button_digit_9_text" />
 
+
             <Button
-                android:id="@+id/button_math_operation_multiply"
-                style="@style/math_operations_button"
+                android:id="@+id/button_input_manipulation_clear_all"
+                style="@style/input_manipulation_button"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.25"
-                android:text="@string/button_math_operation_multiply_text" />
+                android:text="@string/button_input_manipulation_clear_all_text" />
+
+
         </LinearLayout>
 
         <LinearLayout
@@ -245,12 +218,14 @@
                 android:text="@string/button_digit_6_text" />
 
             <Button
-                android:id="@+id/button_math_operation_subtract"
-                style="@style/math_operations_button"
+                android:id="@+id/button_input_manipulation_clear_all_input_entry"
+                style="@style/input_manipulation_button"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.25"
-                android:text="@string/button_math_operation_subtract_text" />
+                android:text="@string/button_input_manipulation_clear_all_input_entry_text" />
+
+
         </LinearLayout>
 
         <LinearLayout
@@ -284,12 +259,14 @@
                 android:text="@string/button_digit_3_text" />
 
             <Button
-                android:id="@+id/button_math_operation_add"
-                style="@style/math_operations_button"
+                android:id="@+id/button_input_manipulation_delete_last_character"
+                style="@style/input_manipulation_button"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.25"
-                android:text="@string/button_math_operation_add_text" />
+                android:text="@string/button_input_manipulation_delete_last_character_text" />
+
+
         </LinearLayout>
 
         <LinearLayout

@@ -1,8 +1,5 @@
 package com.bpapps.calc.view.ui.main;
 
-import android.content.Context;
-import android.content.res.Configuration;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -25,7 +22,7 @@ public class CaclViewPagerAdapter extends FragmentStateAdapter {
 
         mHistoryFragment.setOnMemoryItemClickedCallBack(mCalculatorFragment);
         mMemoryFragment.setOnMemoryItemClickCallBack(mCalculatorFragment);
-        mCalculatorFragment.setOnDataBaseChangedListener(mHistoryFragment);
+        mCalculatorFragment.setOnHistoryDataBaseChangedListener(mHistoryFragment);
     }
 
     @NonNull

@@ -2,21 +2,22 @@ package com.bpapps.calc.contractsmvp;
 
 import com.bpapps.calc.presenter.applogic.MathematicalCalculableOperationResult;
 import com.bpapps.calc.presenter.applogic.MathematicalOperation;
+import com.bpapps.calc.presenter.applogic.Params;
 
 public interface ICalculatorContract {
 
     interface View extends IBaseView<ICalculatorContract.Presenter> {
 
-        void updateViewAfterCalculation(MathematicalCalculableOperationResult result);
+        void onCalculated(MathematicalCalculableOperationResult result);
 
         void saveHistoryEntry();
 
     }
 
     interface Presenter extends IBasePresenter<ICalculatorContract.View> {
-        void calculate(Double num1, Double num2, @MathematicalOperation int operand);
+        void calculateBinaryOperand(Params params);
 
-        void calculate(Double num, @MathematicalOperation int operand);
+        void calculateUnaryOperand(Params params);
 
         void saveFormula(String formula, double value);
     }

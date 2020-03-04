@@ -20,9 +20,13 @@ import com.bpapps.calc.model.HistoryEntry;
 import com.bpapps.calc.model.MemoryEntry;
 import com.bpapps.calc.presenter.applogic.MathematicalCalculableOperationResult;
 import com.bpapps.calc.presenter.applogic.MathematicalOperation;
+import com.bpapps.calc.presenter.applogic.Params;
 import com.bpapps.calc.view.adapters.HistoryRecyclerViewAdapter;
 import com.bpapps.calc.view.adapters.MemoryRecyclerViewAdapter;
 import com.bpapps.calc.view.interfaces.IOnHistoryDataBaseChangedListener;
+import com.bpapps.calc.view.util.FormulaManager;
+
+import java.util.ArrayList;
 
 
 public class CalculatorFragment extends Fragment
@@ -30,44 +34,44 @@ public class CalculatorFragment extends Fragment
 
     private static final String TAG = CalculatorFragment.class.getSimpleName();
 
-    private static final int MAX_NUMBER_OF_DIGITS = 10;
-    private static final int MAX_NUMBER_OF_OPERANDS_IN_FORMULA = 8;
+    private static final int MAX_NUMBER_OF_DIGITS = 15;
+    //private static final int MAX_NUMBER_OF_OPERANDS_IN_FORMULA = 8;
     private static final String DELIMITER = " ";
 
     private ICalculatorContract.Presenter mCalculatorPresenter;
     private IMemoryContract.Presenter mMemoryPresenter;
 
-    public void setOnDataBaseChangedListener(IOnHistoryDataBaseChangedListener onDataBaseChangedListener) {
-        mOnDataBaseChangedListener = onDataBaseChangedListener;
+    public void setOnHistoryDataBaseChangedListener(IOnHistoryDataBaseChangedListener onHistoryDataBaseChangedListener) {
+        mOnHistoryDataBaseChangedListener = onHistoryDataBaseChangedListener;
     }
 
-    private IOnHistoryDataBaseChangedListener mOnDataBaseChangedListener;
+    private IOnHistoryDataBaseChangedListener mOnHistoryDataBaseChangedListener;
 
     private TextView mTextViewFormulaShower;
     private TextView mTextViewInputAndResultShower;
 
-    private StringBuilder mFormula;
+    private FormulaManager mFormulaManager;
+    private StringBuilder mInput;
 
-    private boolean mCalculate = false;
-    private double mNum1;
-    private double mNum2;
-    private @MathematicalOperation
-    int mOperand = MathematicalOperation.OPERATION_NOT_DEFINED;
+    private Params mParams = new Params();
+    private boolean mPrevOperandUnary = false;
 
-    private boolean mFirstNumber = true;
-    private boolean mNewInput = true;
 
     public static CalculatorFragment getInstance() {
         return new CalculatorFragment();
     }
 
     public CalculatorFragment() {
+
+        mInput = new StringBuilder();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_clculator, container, false);
+
+        initFormula();
 
         initTextViews(view);
 
@@ -90,6 +94,17 @@ public class CalculatorFragment extends Fragment
         super.onDestroy();
     }
 
+    void initFormula() {
+        ArrayList<String> oneParamOperands = new ArrayList<>();
+        Resources resources = getResources();
+        oneParamOperands.add(resources.getString(R.string.add_sign));
+        oneParamOperands.add(resources.getString(R.string.minus_sign));
+        oneParamOperands.add(resources.getString(R.string.multiply_sign));
+        oneParamOperands.add(resources.getString(R.string.divide_sign));
+
+        mFormulaManager = new FormulaManager(DELIMITER, oneParamOperands);
+    }
+
     private void initTextViews(@NonNull View view) {
         mTextViewFormulaShower = view.findViewById(R.id.text_view_formula_shower);
         mTextViewFormulaShower.setText("");
@@ -110,15 +125,13 @@ public class CalculatorFragment extends Fragment
         view.findViewById(R.id.button_input_manipulation_clear_all_input_entry).setOnClickListener(this);
         view.findViewById(R.id.button_input_manipulation_delete_last_character).setOnClickListener(this);
 
+        view.findViewById(R.id.button_math_operation_percentage).setOnClickListener(this);
+
         view.findViewById(R.id.button_math_operation_add).setOnClickListener(this);
         view.findViewById(R.id.button_math_operation_change_sign).setOnClickListener(this);
         view.findViewById(R.id.button_math_operation_divide).setOnClickListener(this);
         view.findViewById(R.id.button_math_operation_equals).setOnClickListener(this);
-        view.findViewById(R.id.button_math_operation_inverse).setOnClickListener(this);
         view.findViewById(R.id.button_math_operation_multiply).setOnClickListener(this);
-        view.findViewById(R.id.button_math_operation_percentage).setOnClickListener(this);
-        view.findViewById(R.id.button_math_operation_power_2).setOnClickListener(this);
-        view.findViewById(R.id.button_math_operation_square_root).setOnClickListener(this);
         view.findViewById(R.id.button_math_operation_subtract).setOnClickListener(this);
 
         view.findViewById(R.id.button_digit_0).setOnClickListener(this);
@@ -171,6 +184,13 @@ public class CalculatorFragment extends Fragment
                 changeInputSign();
                 break;
 
+            case R.id.button_math_operation_percentage:
+                onClickOneParamOperand(
+                        getResources().getString(R.string.percentage_sign_text_format),
+                        getResources().getString(R.string.percentage_sign),
+                        MathematicalOperation.PERCENTAGE);
+                break;
+
             case R.id.button_math_operation_add:
                 onClickTwoParamsOperandButton(getResources().getString(R.string.add_sign), MathematicalOperation.ADD);
                 break;
@@ -183,34 +203,9 @@ public class CalculatorFragment extends Fragment
             case R.id.button_math_operation_multiply:
                 onClickTwoParamsOperandButton(getResources().getString(R.string.multiply_sign), MathematicalOperation.MULTIPLY);
                 break;
+
             case R.id.button_math_operation_equals:
                 onClickEqualsButton();
-                break;
-
-
-            case R.id.button_math_operation_inverse:
-                onClickOneParamOperand(
-                        getResources().getString(R.string.inverse_sign_text_format),
-                        getResources().getString(R.string.inverse_num_sign),
-                        MathematicalOperation.INVERSE);
-                break;
-            case R.id.button_math_operation_percentage:
-                onClickOneParamOperand(
-                        getResources().getString(R.string.percentage_sign_text_format),
-                        getResources().getString(R.string.percentage_sign),
-                        MathematicalOperation.PERCENTAGE);
-                break;
-            case R.id.button_math_operation_power_2:
-                onClickOneParamOperand(
-                        getResources().getString(R.string.power_2_text_format),
-                        getResources().getString(R.string.power_2_sign),
-                        MathematicalOperation.POWER_2);
-                break;
-            case R.id.button_math_operation_square_root:
-                onClickOneParamOperand(
-                        getResources().getString(R.string.square_root_text_format),
-                        getResources().getString(R.string.square_root_sign),
-                        MathematicalOperation.SQUARE_ROOT);
                 break;
 
 
@@ -247,6 +242,66 @@ public class CalculatorFragment extends Fragment
         }
     }
 
+    private void onClickOneParamOperand(String operandFormatString, String operandSign, @MathematicalOperation int operand) {
+        String currNumber = getCurrInput().toString();
+
+        if (operandSign.equals(getResources().getString(R.string.percentage_sign))) {
+            mFormulaManager.appendWithoutDelimiter(currNumber);
+            mFormulaManager.appendWithDelimiter(operandSign);
+        }
+
+        if (mParams.getNmu1() == null) {
+            mParams.setNmu1(Double.parseDouble(getCurrInput().toString()));
+            mParams.setOperand(operand);
+            mCalculatorPresenter.calculateUnaryOperand(mParams);
+        } else {
+            double num1 = mParams.getNmu1();
+            @MathematicalOperation int prevOperand = mParams.getOperand();
+
+            Params params = new Params();
+            params.setNmu1(Double.parseDouble(getCurrInput().toString()));
+            params.setOperand(operand);
+            mCalculatorPresenter.calculateUnaryOperand(params);
+
+            mParams.setNum2(mParams.getNmu1());
+            mParams.setNmu1(num1);
+            mParams.setOperand(prevOperand);
+            mCalculatorPresenter.calculateBinaryOperand(mParams);
+        }
+    }
+
+    private void onClickTwoParamsOperandButton(String operandSign, @MathematicalOperation int operand) {
+        String currNumber = getCurrInput().toString();
+        if (mPrevOperandUnary) {
+            mFormulaManager.appendWithoutDelimiter(operandSign);
+        } else {
+            mFormulaManager.appendWithoutDelimiter(currNumber);
+            mFormulaManager.appendWithoutDelimiter(operandSign);
+        }
+
+        if (mParams.getNmu1() == null) {
+            mParams.setNmu1(Double.parseDouble(getCurrInput().toString()));
+            mParams.setOperand(operand);
+
+            updateTextViewFormulaShower(mFormulaManager.getFormula());
+        } else {
+
+            if (mPrevOperandUnary) {
+                mParams.setOperand(operand);
+                updateTextViewFormulaShower(mFormulaManager.getFormula());
+            } else {
+                mParams.setNum2(Double.parseDouble(getCurrInput().toString()));
+
+                if (mParams.getOperand() != MathematicalOperation.OPERATION_NOT_DEFINED)
+                    mCalculatorPresenter.calculateBinaryOperand(mParams);
+
+                mParams.setOperand(operand);
+            }
+        }
+
+        initInput();
+    }
+
     private void clearMemoryDataBase() {
         mMemoryPresenter.clearDataBase();
         Toast.makeText(requireContext(), "Memory deleted", Toast.LENGTH_LONG).show();
@@ -258,7 +313,7 @@ public class CalculatorFragment extends Fragment
         if (item == null) {
             Toast.makeText(requireContext(), "Memory empty", Toast.LENGTH_LONG).show();
         } else {
-            clearAll();
+            initInput();
             updateTextViewResultInputShower(item.getValue() + "");
         }
     }
@@ -282,179 +337,64 @@ public class CalculatorFragment extends Fragment
         mMemoryPresenter.addToDataBase(item);
     }
 
-    private void onClickOneParamOperand(String operandFormatString, String operandSign, @MathematicalOperation int operand) {
-        updateFormulaOneParamOperand(operandFormatString, operand);
-
-        if (!mFirstNumber)
-            mCalculatorPresenter.calculate(mNum1, operand);
-        else
-            mCalculatorPresenter.calculate(mNum2, operand);
-    }
-
-    private void updateFormulaOneParamOperand(String operandFormatString, @MathematicalOperation int operand) {
-        String text;
-        if (mFirstNumber) {
-            mFirstNumber = false;
-            mNum1 = getNumberFromInput();
-
-            text = String.format(operandFormatString, getCurrInput());
-
-            if(operand == MathematicalOperation.PERCENTAGE) {
-                text = text + getResources().getString(R.string.percentage_sign);
-            }
-
-            mFormula = new StringBuilder(text);
-        } else if (isFormulaContainsTwoParamsOperand()) {
-            mNum2 = getNumberFromInput();
-            mFormula.append(String.format(operandFormatString, mNum2));
-        } else {
-            mNum2 = getNumberFromInput();
-
-            text = String.format(operandFormatString, mNum2);
-
-            if (operand == MathematicalOperation.PERCENTAGE) {
-                text = text + getResources().getString(R.string.percentage_sign);
-            }
-
-            mFormula = new StringBuilder(text);
-        }
-
-        updateTextViewFormulaShower(mFormula);
-    }
-
-    private boolean isFormulaContainsTwoParamsOperand() {
-        String formula = mFormula.toString();
-
-        Resources resources = getResources();
-        if (formula.contains(resources.getString(R.string.add_sign)))
-            return true;
-        if (formula.contains(resources.getString(R.string.subtract_sign)))
-            return true;
-        if (formula.contains(resources.getString(R.string.multiply_sign)))
-            return true;
-        if (formula.contains(resources.getString(R.string.divide_sign)))
-            return true;
-
-
-        return false;
-    }
-
-    private void onClickTwoParamsOperandButton(String operandSign, @MathematicalOperation int operand) {
-        updateFormula(operandSign);
-
-        if (mCalculate)
-            calculate();
-        else
-            mCalculate = true;
-
-        updateOperand(operand);
-
-        mNewInput = true;
-    }
-
     private void onClickEqualsButton() {
-        if (mCalculate) {
-            updateFormula(getResources().getString(R.string.equals_sign));
-            calculate();
+        String currNumber = getCurrInput().toString();
 
-            saveHistoryEntry();
-
-            mNewInput = true;
-            mFirstNumber = true;
-            mFormula = null;
-            mCalculate = false;
-        }
-    }
-
-    private void updateFormula(String operand) {
-        if (mFirstNumber) {
-            mFirstNumber = false;
-
-            mNum1 = getNumberFromInput();
-
-            mFormula = new StringBuilder();
-
-            mFormula.append(mNum1);
-            mFormula.append(DELIMITER);
-            mFormula.append(operand);
-        } else {
-            mNum2 = getNumberFromInput();
-
-            mFormula.append(DELIMITER);
-
-            int len = mFormula.length();
-            char ch1 = mFormula.toString().charAt(len - 2);
-            char ch2 = getResources().getString(R.string.right_bracket).charAt(0);
-            if (ch1 == ch2) {
-                mFormula.append(operand);
-                mFormula.append(DELIMITER);
-            } else {
-                mFormula.append(mNum2);
-                mFormula.append(DELIMITER);
-                mFormula.append(operand);
-            }
+        if (mParams.getOperand() != MathematicalOperation.OPERATION_NOT_DEFINED) {
+            mFormulaManager.appendWithDelimiter(currNumber);
+            mParams.setNum2(Double.parseDouble(currNumber));
+            mCalculatorPresenter.calculateBinaryOperand(mParams);
         }
 
-        updateTextViewFormulaShower(mFormula);
+        if (mFormulaManager.getFormula().length() == 0) {
+            mFormulaManager.appendWithDelimiter(currNumber);
+        }
+
+        mFormulaManager.appendWithoutDelimiter(getResources().getString(R.string.equals_sign));
+
+        saveHistoryEntry();
+
+        updateTextViewFormulaShower(mFormulaManager.getFormula());
+
+        mFormulaManager.init();
+        initInput();
+        mParams.init();
+        mPrevOperandUnary = false;
     }
 
-    private void updateOperand(@MathematicalOperation int operand) {
-        mOperand = operand;
-    }
-
-    private void calculate() {
-        mCalculatorPresenter.calculate(mNum1, mNum2, mOperand);
-    }
-
-    private Double getNumberFromInput() {
-        return Double.parseDouble(getCurrInput().toString());
-    }
 
     private void buttonDigitClicked(String digitStr) {
-        StringBuilder currInput;
-        if (mNewInput) {
-            currInput = new StringBuilder();
-            mNewInput = false;
-        } else {
-            currInput = new StringBuilder(mTextViewInputAndResultShower.getText().toString());
-        }
-
-        if (currInput.length() > MAX_NUMBER_OF_DIGITS) {
-            String msg = getResources().getString(R.string.max_number_of_digits_msg);
-            Toast.makeText(requireActivity(), String.format(msg, MAX_NUMBER_OF_DIGITS), Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        currInput.append(digitStr);
-
-        updateTextViewResultInputShower(currInput);
+        mInput.append(digitStr);
+        updateTextViewResultInputShower(mInput);
     }
 
 
     @Override
-    public void updateViewAfterCalculation(@NonNull MathematicalCalculableOperationResult result) {
+    public void onCalculated(@NonNull MathematicalCalculableOperationResult result) {
+        mParams.init();
+
         if (result.isOperationSuccessful()) {
-            if (result.isSingleNumOperand()) {
-                if (mFirstNumber) {
-                    mCalculatorPresenter.calculate(mNum1, result.getResult(), mOperand);
-                } else {
-                    mNum1 = result.getResult();
-                    updateTextViewResultInputShower(mNum1 + "");
-                }
-            } else {
-                mNum1 = result.getResult();
-                updateTextViewResultInputShower(mNum1 + "");
-                mNewInput = true;
+            updateTextViewResultInputShower(result.getResult().toString());
+            updateTextViewFormulaShower(mFormulaManager.getFormula());
+
+            mParams.setNmu1(result.getResult());
+
+            if (result.isUnaryOperand()) {
+                mPrevOperandUnary = true;
             }
         } else {
             updateTextViewResultInputShower(result.getException().getMessage());
+            updateTextViewFormulaShower(mFormulaManager.getFormula());
+            initFormula();
+            initInput();
+            mPrevOperandUnary = false;
         }
     }
 
     @Override
     public void saveHistoryEntry() {
-        mCalculatorPresenter.saveFormula(mFormula.toString(), mNum1);
-        mOnDataBaseChangedListener.onDataBaseChanged();
+        mCalculatorPresenter.saveFormula(mFormulaManager.getFormula().toString(), mFormulaManager.getValue());
+        mOnHistoryDataBaseChangedListener.onDataBaseChanged();
     }
 
     @Override
@@ -469,42 +409,42 @@ public class CalculatorFragment extends Fragment
     }
 
     private void addDot() {
-        StringBuilder newInput = getCurrInput();
         String dot = getResources().getString(R.string.dot);
+        if (!mInput.toString().contains(dot)) {
+            if (mInput.length() == 0) {
+                mInput.append(getResources().getString(R.string.digit_0));
+            }
 
-        if (!newInput.toString().contains(dot)) {
-            newInput.append(getResources().getString(R.string.dot));
-            updateTextViewResultInputShower(newInput);
-            mNewInput = false;
+            mInput.append(dot);
         }
+
+        updateTextViewResultInputShower(mInput);
     }
 
     private void clearAll() {
+        mFormulaManager.init();
+        initInput();
+
         updateTextViewFormulaShower("");
         updateTextViewResultInputShower(getResources().getString(R.string.digit_0));
-        mNewInput = true;
-        mFirstNumber = true;
-        mFormula = null;
-        mCalculate = false;
+        mPrevOperandUnary = false;
     }
 
     private void clearAllInputEntry() {
+        initInput();
+
         updateTextViewResultInputShower(getResources().getString(R.string.digit_0));
-        mNewInput = true;
     }
 
     private void deleteLastCharacter() {
-        if (!mNewInput) {
-            StringBuilder newInputString = getCurrInput();
+        int len = mInput.length();
+        if (len > 0)
+            mInput.deleteCharAt(len - 1);
 
-            if (newInputString.length() > 1) {
-                newInputString.deleteCharAt(newInputString.length() - 1);
-                updateTextViewResultInputShower(newInputString);
-            } else {
-                updateTextViewResultInputShower(getResources().getString(R.string.digit_0));
-                mNewInput = true;
-            }
-        }
+        if (mInput.length() == 0)
+            updateTextViewResultInputShower(getResources().getString(R.string.digit_0));
+        else
+            updateTextViewResultInputShower(mInput);
     }
 
     private StringBuilder getCurrInput() {
@@ -512,15 +452,20 @@ public class CalculatorFragment extends Fragment
     }
 
     private void changeInputSign() {
-        StringBuilder newInput = getCurrInput();
-        String minusStr = getResources().getString(R.string.minus_sign);
-        if (newInput.substring(0, 1).equals(minusStr)) {
-            newInput.deleteCharAt(0);
+        String minusSign = getResources().getString(R.string.minus_sign);
+
+        if (mInput.length() > 0) {
+            if (mInput.substring(0, 1).equals(minusSign)) {
+                mInput.deleteCharAt(0);
+            } else {
+                mInput.insert(0, minusSign);
+            }
         } else {
-            newInput.insert(0, minusStr);
+            mInput.append(minusSign);
+//            mInput.append(getResources().getString(R.string.digit_0));
         }
 
-        updateTextViewResultInputShower(newInput);
+        updateTextViewResultInputShower(mInput);
     }
 
     private void updateTextViewResultInputShower(String text) {
@@ -542,19 +487,17 @@ public class CalculatorFragment extends Fragment
 
     @Override
     public void onClick(HistoryEntry entry) {
-        mFormula = new StringBuilder(entry.getFormula());
-        updateTextViewFormulaShower(mFormula);
+        updateTextViewFormulaShower(entry.getFormula());
         updateTextViewResultInputShower(entry.getValue() + "");
-
-        if (mFirstNumber) {
-            mNum1 = entry.getValue();
-            mFirstNumber = false;
-        } else
-            mNum2 = entry.getValue();
     }
 
     @Override
     public void onClick(MemoryEntry item) {
         updateTextViewResultInputShower(item.getValue() + "");
+    }
+
+
+    private void initInput() {
+        mInput.setLength(0);
     }
 }

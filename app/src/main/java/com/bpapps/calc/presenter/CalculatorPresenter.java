@@ -7,6 +7,7 @@ import com.bpapps.calc.model.Model;
 import com.bpapps.calc.presenter.applogic.MathematicalCalculableOperation;
 import com.bpapps.calc.presenter.applogic.MathematicalCalculableOperationResult;
 import com.bpapps.calc.presenter.applogic.MathematicalOperation;
+import com.bpapps.calc.presenter.applogic.Params;
 
 public class CalculatorPresenter implements ICalculatorContract.Presenter {
     private ICalculatorContract.View mView;
@@ -50,15 +51,16 @@ public class CalculatorPresenter implements ICalculatorContract.Presenter {
     }
 
     @Override
-    public void calculate(Double num1, Double num2, int operand) {
-        MathematicalCalculableOperationResult result = mCalculator.calculate(num1, num2, operand);
-        mView.updateViewAfterCalculation(result);
+    public void calculateBinaryOperand(Params params
+    ) {
+        MathematicalCalculableOperationResult result = mCalculator.calculate(params.getNmu1(), params.getNum2(), params.getOperand());
+        mView.onCalculated(result);
     }
 
     @Override
-    public void calculate(Double num, @MathematicalOperation int operand) {
-        MathematicalCalculableOperationResult result = mCalculator.calculate(num, operand);
-        mView.updateViewAfterCalculation(result);
+    public void calculateUnaryOperand(Params params) {
+        MathematicalCalculableOperationResult result = mCalculator.calculate(params.getNmu1(), params.getOperand());
+        mView.onCalculated(result);
     }
 
     @Override
