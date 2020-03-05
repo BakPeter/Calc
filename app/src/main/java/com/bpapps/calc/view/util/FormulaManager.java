@@ -37,24 +37,53 @@ public class FormulaManager {
         return mFormula;
     }
 
-    public StringBuilder getFormulaNoDelimiters() {
-        StringBuilder formula = new StringBuilder(mFormula);
-        int len = mFormula.length();
-
-        for (int i = 0; i < len; i++) {
-            if (mFormula.substring(i, i + 1).equals(mDelimiter))
-                mFormula.deleteCharAt(i);
-        }
-
-
-        return formula;
-    }
-
     public StringBuilder getFormula() {
         return mFormula;
     }
 
     public double getValue() {
         return mValue;
+    }
+
+    public void setValue(double value) {
+        mValue = value;
+    }
+
+    public StringBuilder addUnaryOperand(String operandFormatString, String operandSign, String number) {
+        if(operandSign.equals("%")) {
+            if(mFormula.length() == 0) {
+                mFormula.append(number);
+                mFormula.append(operandSign);
+            } else {
+                mFormula.append(operandSign);
+            }
+        } else {
+            throw  new IllegalArgumentException("operand " + operandSign + "not implemented");
+        }
+
+        return mFormula;
+    }
+
+    public void addBinaryOperand(String operandSign, String number) {
+        if(mFormula.length() == 0) {
+            mFormula.append(number);
+            mFormula.append(mDelimiter);
+            mFormula.append(operandSign);
+        } else {
+            mFormula.append(mDelimiter);
+            mFormula.append(number);
+            mFormula.append(mDelimiter);
+            mFormula.append(operandSign);
+        }
+    }
+
+    public boolean containsBinaryOperand() {
+       String formula = mFormula.toString();
+
+       for(int i=0; i<formula.length(); i++) {
+           if(formula.charAt(i) == '%')
+               return true;
+       }
+        return false;
     }
 }

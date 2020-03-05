@@ -13,7 +13,7 @@ public class CalculatorDataBase {
         mHistoryData = new ArrayList();
         mMemoryData = new ArrayList();
 
-        addMockDataBase();
+       // addMockDataBase();
     }
 
     private void addMockDataBase() {

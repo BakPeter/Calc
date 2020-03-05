@@ -80,25 +80,28 @@ public class MemoryPresenter
     @Override
     public void addToMemoryItem(double valueToAdd) {
         mModel.addToMemoryItem(valueToAdd);
-        mView.onDataBaseUpdated();
+        if (isViewAttached())
+            mView.onDataBaseUpdated();
     }
 
     @Override
     public void subtractFromMemory(int itemId) {
         mModel.subtractFromMemoryItem(itemId);
-        mView.onDataBaseUpdated();
+        if (mView != null)
+            mView.onDataBaseUpdated();
     }
 
     @Override
     public void subtractFromMemory(double valueToSubtract) {
         mModel.subtractFromMemoryItem(valueToSubtract);
-        mView.onDataBaseUpdated();
+        if (mView != null)
+            mView.onDataBaseUpdated();
     }
 
     @Override
     public void addToDataBase(MemoryEntry item) {
         mModel.addToMemoryDataBase(item);
-        if(isViewAttached())
+        if (isViewAttached())
             mView.onDataBaseUpdated();
     }
 

@@ -10,11 +10,9 @@
     <TextView
         android:id="@+id/text_view_formula_shower"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:padding="16dp"
+        android:layout_height="90dp"
         android:textAlignment="textEnd"
-        android:textSize="30sp"
-        app:autoSizeMaxTextSize="100sp"
+        app:autoSizeMaxTextSize="20sp"
         app:autoSizeMinTextSize="12sp"
         app:autoSizeStepGranularity="2sp"
         app:autoSizeTextType="uniform"
@@ -25,8 +23,7 @@
     <TextView
         android:id="@+id/text_view_input_and_result_shower"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:padding="16dp"
+        android:layout_height="50dp"
         android:textAlignment="textEnd"
         android:textSize="30sp"
         android:textStyle="bold"

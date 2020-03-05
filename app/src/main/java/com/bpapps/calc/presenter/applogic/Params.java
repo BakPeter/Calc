@@ -39,4 +39,14 @@ public class Params {
         mNum2 = null;
         mOperand = MathematicalOperation.OPERATION_NOT_DEFINED;
     }
+
+    public boolean isUnaryOperand(@MathematicalOperation int operand) {
+        switch (operand) {
+            case MathematicalOperation.PERCENTAGE:
+                return true;
+            default:
+                return false;
+        }
+
+    }
 }

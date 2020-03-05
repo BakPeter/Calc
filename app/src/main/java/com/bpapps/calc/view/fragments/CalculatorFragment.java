@@ -52,9 +52,9 @@ public class CalculatorFragment extends Fragment
 
     private FormulaManager mFormulaManager;
     private StringBuilder mInput;
-
     private Params mParams = new Params();
-    private boolean mPrevOperandUnary = false;
+    private @MathematicalOperation
+    int mPrevOperand;
 
 
     public static CalculatorFragment getInstance() {
@@ -64,6 +64,7 @@ public class CalculatorFragment extends Fragment
     public CalculatorFragment() {
 
         mInput = new StringBuilder();
+        mPrevOperand = MathematicalOperation.OPERATION_NOT_DEFINED;
     }
 
     @Override
@@ -185,7 +186,7 @@ public class CalculatorFragment extends Fragment
                 break;
 
             case R.id.button_math_operation_percentage:
-                onClickOneParamOperand(
+                onClickUnaryParamOperand(
                         getResources().getString(R.string.percentage_sign_text_format),
                         getResources().getString(R.string.percentage_sign),
                         MathematicalOperation.PERCENTAGE);
@@ -242,64 +243,86 @@ public class CalculatorFragment extends Fragment
         }
     }
 
-    private void onClickOneParamOperand(String operandFormatString, String operandSign, @MathematicalOperation int operand) {
-        String currNumber = getCurrInput().toString();
+    private void onClickUnaryParamOperand(String operandFormatString, String operandSign, @MathematicalOperation int operand) {
+        String currInput = getCurrInput().toString();
+        mFormulaManager.addUnaryOperand(operandFormatString, operandSign, currInput);
 
-        if (operandSign.equals(getResources().getString(R.string.percentage_sign))) {
-            mFormulaManager.appendWithoutDelimiter(currNumber);
-            mFormulaManager.appendWithDelimiter(operandSign);
-        }
-
-        if (mParams.getNmu1() == null) {
-            mParams.setNmu1(Double.parseDouble(getCurrInput().toString()));
-            mParams.setOperand(operand);
-            mCalculatorPresenter.calculateUnaryOperand(mParams);
-        } else {
-            double num1 = mParams.getNmu1();
-            @MathematicalOperation int prevOperand = mParams.getOperand();
-
-            Params params = new Params();
-            params.setNmu1(Double.parseDouble(getCurrInput().toString()));
-            params.setOperand(operand);
-            mCalculatorPresenter.calculateUnaryOperand(params);
-
-            mParams.setNum2(mParams.getNmu1());
-            mParams.setNmu1(num1);
-            mParams.setOperand(prevOperand);
-            mCalculatorPresenter.calculateBinaryOperand(mParams);
-        }
+        onClickOperand(operand, currInput);
     }
 
+
     private void onClickTwoParamsOperandButton(String operandSign, @MathematicalOperation int operand) {
-        String currNumber = getCurrInput().toString();
-        if (mPrevOperandUnary) {
-            mFormulaManager.appendWithoutDelimiter(operandSign);
-        } else {
-            mFormulaManager.appendWithoutDelimiter(currNumber);
-            mFormulaManager.appendWithoutDelimiter(operandSign);
-        }
+        String currInput = getCurrInput().toString();
+        mFormulaManager.addBinaryOperand(operandSign, currInput);
 
-        if (mParams.getNmu1() == null) {
-            mParams.setNmu1(Double.parseDouble(getCurrInput().toString()));
-            mParams.setOperand(operand);
+        onClickOperand(operand, currInput);
+    }
 
-            updateTextViewFormulaShower(mFormulaManager.getFormula());
-        } else {
+    private void onClickOperand(@MathematicalOperation int operand, String currInput) {
+        
+    }
 
-            if (mPrevOperandUnary) {
-                mParams.setOperand(operand);
-                updateTextViewFormulaShower(mFormulaManager.getFormula());
-            } else {
-                mParams.setNum2(Double.parseDouble(getCurrInput().toString()));
+//    private void onClickOperand(@MathematicalOperation int operand, String currInput) {
+//        if (mParams.getNmu1() == null) {
+//            mParams.setNmu1(Double.parseDouble(currInput));
+//            mParams.setOperand(operand);
+//
+//            if (isOperandUnary(mParams.getOperand()))
+//                mCalculatorPresenter.calculateUnaryOperand(mParams);
+//            else {
+//                initInput();
+//            }
+//
+//            updateTextViewFormulaShower(mFormulaManager.getFormula());
+//        } else {
+//            if (isOperandUnary(operand)) {
+//                double num1 = mParams.getNmu1();
+//                @MathematicalOperation int prevOperand = mParams.getOperand();
+//
+//                Params params = new Params();
+//                params.setNmu1(Double.parseDouble(getCurrInput().toString()));
+//                params.setOperand(operand);
+//                mCalculatorPresenter.calculateUnaryOperand(params);
+//
+//                if (!isOperandUnary(mPrevOperand)) {
+//                    mParams.setNum2(mParams.getNmu1());
+//                    mParams.setNmu1(num1);
+//                    mParams.setOperand(prevOperand);
+//                    mCalculatorPresenter.calculateBinaryOperand(mParams);
+//                }
+//            } else {
+//                if (mParams.getOperand() == MathematicalOperation.OPERATION_NOT_DEFINED) {
+//                    mParams.setOperand(operand);
+//                } else {
+//                    mParams.setNum2(Double.parseDouble(currInput));
+//                    mCalculatorPresenter.calculateBinaryOperand(mParams);
+//
+//                    mParams.setOperand(operand);
+//                }
+//            }
+//        }
+//    }
 
-                if (mParams.getOperand() != MathematicalOperation.OPERATION_NOT_DEFINED)
-                    mCalculatorPresenter.calculateBinaryOperand(mParams);
-
-                mParams.setOperand(operand);
-            }
-        }
-
+    @Override
+    public void onCalculated(@NonNull MathematicalCalculableOperationResult result) {
+        mParams.init();
         initInput();
+
+        if (result.isOperationSuccessful()) {
+            updateTextViewResultInputShower(result.getResult().toString());
+            updateTextViewFormulaShower(mFormulaManager.getFormula());
+
+            mParams.setNmu1(result.getResult());
+            mFormulaManager.setValue(result.getResult());
+
+            mPrevOperand = result.getOperand();
+        } else {
+            updateTextViewResultInputShower(result.getException().getMessage());
+            updateTextViewFormulaShower(mFormulaManager.getFormula());
+            initFormula();
+            initInput();
+            mPrevOperand = MathematicalOperation.OPERATION_NOT_DEFINED;
+        }
     }
 
     private void clearMemoryDataBase() {
@@ -314,7 +337,9 @@ public class CalculatorFragment extends Fragment
             Toast.makeText(requireContext(), "Memory empty", Toast.LENGTH_LONG).show();
         } else {
             initInput();
-            updateTextViewResultInputShower(item.getValue() + "");
+            String num = item.getValue() + "";
+            updateTextViewResultInputShower(num);
+            mInput.append(num);
         }
     }
 
@@ -348,6 +373,7 @@ public class CalculatorFragment extends Fragment
 
         if (mFormulaManager.getFormula().length() == 0) {
             mFormulaManager.appendWithDelimiter(currNumber);
+            mFormulaManager.setValue(Double.parseDouble(currNumber));
         }
 
         mFormulaManager.appendWithoutDelimiter(getResources().getString(R.string.equals_sign));
@@ -359,37 +385,24 @@ public class CalculatorFragment extends Fragment
         mFormulaManager.init();
         initInput();
         mParams.init();
-        mPrevOperandUnary = false;
+        mPrevOperand = MathematicalOperation.OPERATION_NOT_DEFINED;
     }
 
 
     private void buttonDigitClicked(String digitStr) {
+        if (mInput.length() == 0 && mFormulaManager.containsBinaryOperand()) {
+            mFormulaManager.init();
+        }
+
+        if (mInput.length() == 1) {
+            if (mInput.substring(0, 1).equals(getResources().getString(R.string.digit_0)))
+                return;
+        }
+
         mInput.append(digitStr);
         updateTextViewResultInputShower(mInput);
     }
 
-
-    @Override
-    public void onCalculated(@NonNull MathematicalCalculableOperationResult result) {
-        mParams.init();
-
-        if (result.isOperationSuccessful()) {
-            updateTextViewResultInputShower(result.getResult().toString());
-            updateTextViewFormulaShower(mFormulaManager.getFormula());
-
-            mParams.setNmu1(result.getResult());
-
-            if (result.isUnaryOperand()) {
-                mPrevOperandUnary = true;
-            }
-        } else {
-            updateTextViewResultInputShower(result.getException().getMessage());
-            updateTextViewFormulaShower(mFormulaManager.getFormula());
-            initFormula();
-            initInput();
-            mPrevOperandUnary = false;
-        }
-    }
 
     @Override
     public void saveHistoryEntry() {
@@ -424,10 +437,11 @@ public class CalculatorFragment extends Fragment
     private void clearAll() {
         mFormulaManager.init();
         initInput();
+        mParams.init();
 
         updateTextViewFormulaShower("");
         updateTextViewResultInputShower(getResources().getString(R.string.digit_0));
-        mPrevOperandUnary = false;
+        mPrevOperand = MathematicalOperation.OPERATION_NOT_DEFINED;
     }
 
     private void clearAllInputEntry() {
@@ -493,11 +507,23 @@ public class CalculatorFragment extends Fragment
 
     @Override
     public void onClick(MemoryEntry item) {
-        updateTextViewResultInputShower(item.getValue() + "");
+        String num = item.getValue() + "";
+        updateTextViewResultInputShower(num);
+        initInput();
+        mInput.append(num);
     }
 
 
     private void initInput() {
         mInput.setLength(0);
+    }
+
+    boolean isOperandUnary(@MathematicalOperation int operand) {
+        switch (operand) {
+            case MathematicalOperation.PERCENTAGE:
+                return true;
+            default:
+                return false;
+        }
     }
 }

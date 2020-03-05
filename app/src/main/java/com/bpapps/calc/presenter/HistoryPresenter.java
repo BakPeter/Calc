@@ -49,6 +49,7 @@ public class HistoryPresenter implements IHistoryContract.Presenter {
 
     @Override
     public ArrayList<HistoryEntry> getHistoryDataBase() {
+
         return mModel.getHistoryDataBase();
     }
 
