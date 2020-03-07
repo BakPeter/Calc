@@ -68,6 +68,7 @@
     <string name="no_history_msg">There\'s no history yet</string>
     <string name="no_memory_msg">There\'s nothing saved in your memory</string>
     <string name="empty_formula">""</string>
+    <string name="number_of_digits_out_of_allowed_bound_format_msg">Max numbers of digits allowed is %d</string>
     =======
 >>>>>>> e9065689d45ff34d706debd169c42a5e52c4e442
 </resources>

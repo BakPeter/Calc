@@ -1,52 +1,33 @@
 package com.bpapps.calc.presenter.applogic;
 
+import java.util.ArrayList;
+
 public class Params {
-    private Double mNmu1;
-    private Double mNum2;
-    private @MathematicalOperation
-    int mOperand;
+    private ArrayList<Double> mNumbers = new ArrayList<>();
+    private ArrayList<Integer> mOperands = new ArrayList<>();
 
     public Params() {
         init();
     }
 
-    public Double getNmu1() {
-        return mNmu1;
-    }
-
-    public void setNmu1(Double nmu1) {
-        mNmu1 = nmu1;
-    }
-
-    public Double getNum2() {
-        return mNum2;
-    }
-
-    public void setNum2(Double num2) {
-        mNum2 = num2;
-    }
-
-    public int getOperand() {
-        return mOperand;
-    }
-
-    public void setOperand(int operand) {
-        mOperand = operand;
-    }
-
     public void init() {
-        mNmu1 = null;
-        mNum2 = null;
-        mOperand = MathematicalOperation.OPERATION_NOT_DEFINED;
+        mNumbers.clear();
+        mOperands.clear();
     }
 
-    public boolean isUnaryOperand(@MathematicalOperation int operand) {
-        switch (operand) {
-            case MathematicalOperation.PERCENTAGE:
-                return true;
-            default:
-                return false;
-        }
+    public ArrayList<Double> getNumbers() {
+        return mNumbers;
+    }
 
+    public ArrayList<Integer> getOperands() {
+        return mOperands;
+    }
+
+    public void addNumber(double number) {
+        mNumbers.add(number);
+    }
+
+    public void addOperand(@MathematicalOperation int operand) {
+        mOperands.add(operand);
     }
 }

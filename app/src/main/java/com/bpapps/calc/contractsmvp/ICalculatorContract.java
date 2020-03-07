@@ -14,7 +14,7 @@ public interface ICalculatorContract {
     }
 
     interface Presenter extends IBasePresenter<ICalculatorContract.View> {
-        void calculateBinaryOperand(Params params);
+        Double calculateBinaryOperand(Params params);
 
         void calculateUnaryOperand(Params params);
 

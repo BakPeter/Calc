@@ -1,33 +1,29 @@
 package com.bpapps.calc.presenter.applogic;
 
+import java.util.ArrayList;
+
 public class MathematicalCalculableOperationResult {
-    private Double mNum1;
-    private Double mNum2;
-    private @MathematicalOperation
-    int mOperand;
+
+    private ArrayList<Double> mNumbers;
+    private ArrayList<Integer> mOperands;
     private Double mResult;
     private MathematicalCalculableOperationException mException;
 
-    public MathematicalCalculableOperationResult(Double num1, Double num2, @MathematicalOperation int operand, Double result, MathematicalCalculableOperationException exception) {
-        mNum1 = num1;
-        mNum2 = num2;
-        mOperand = operand;
+    public MathematicalCalculableOperationResult() {
+    }
+
+    public MathematicalCalculableOperationResult(
+            ArrayList<Double> numbers,
+            ArrayList<Integer> operands,
+            Double result,
+            MathematicalCalculableOperationException exception) {
+
+        mNumbers = numbers;
+        mOperands = operands;
         mResult = result;
         mException = exception;
     }
 
-    public Double getNum1() {
-        return mNum1;
-    }
-
-    public Double getNum2() {
-        return mNum2;
-    }
-
-    @MathematicalOperation
-    public int getOperand() {
-        return mOperand;
-    }
 
     public Double getResult() {
         return mResult;
@@ -41,21 +37,35 @@ public class MathematicalCalculableOperationResult {
         return mException == null;
     }
 
-    public boolean isSingleNumOperand() {
-        if (mOperand == MathematicalOperation.SQUARE_ROOT
-                || mOperand == MathematicalOperation.POWER_2
-                || mOperand == MathematicalOperation.INVERSE)
+    public boolean isUnaryOperation() {
+        if (mNumbers.size() == 1
+                && mOperands.get(0) == MathematicalOperation.PERCENTAGE) {
             return true;
-
-        return false;
+        } else {
+            return false;
+        }
     }
 
-    public boolean isUnaryOperand() {
-        switch (mOperand) {
-            case MathematicalOperation.PERCENTAGE:
-                return true;
-            default:
-                return false;
-        }
+    public void setNumbers(ArrayList<Double> numbers) {
+        mNumbers = numbers;
+    }
+
+    public void setOperands(ArrayList<Integer> operands) {
+        mOperands = operands;
+    }
+
+    public void setResult(Double result) {
+        mResult = result;
+    }
+
+    public void setException(MathematicalCalculableOperationException exception) {
+        mException = exception;
+    }
+
+    public void addToResult(double result) {
+        if (mResult == null)
+            mResult = result;
+        else
+            mResult += result;
     }
 }

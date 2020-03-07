@@ -6,8 +6,9 @@ import com.bpapps.calc.model.HistoryEntry;
 import com.bpapps.calc.model.Model;
 import com.bpapps.calc.presenter.applogic.MathematicalCalculableOperation;
 import com.bpapps.calc.presenter.applogic.MathematicalCalculableOperationResult;
-import com.bpapps.calc.presenter.applogic.MathematicalOperation;
 import com.bpapps.calc.presenter.applogic.Params;
+
+import java.util.ArrayList;
 
 public class CalculatorPresenter implements ICalculatorContract.Presenter {
     private ICalculatorContract.View mView;
@@ -51,15 +52,55 @@ public class CalculatorPresenter implements ICalculatorContract.Presenter {
     }
 
     @Override
-    public void calculateBinaryOperand(Params params
-    ) {
-        MathematicalCalculableOperationResult result = mCalculator.calculate(params.getNmu1(), params.getNum2(), params.getOperand());
+    public Double calculateBinaryOperand(Params params) {
+        ArrayList<Double> numbers = params.getNumbers();
+        ArrayList<Integer> operands = params.getOperands();
+        int numbersSize = numbers.size();
+        int operandsSize = operands.size();
+
+        MathematicalCalculableOperationResult result = new MathematicalCalculableOperationResult();
+        result.setNumbers(numbers);
+        result.setOperands(operands);
+
+        if (numbersSize == 1) {
+            result.setResult(numbers.get(0));
+            result.setException(null);
+        } else {
+            if (numbersSize == operandsSize)
+                operandsSize--;
+
+            double currResult = 0;
+            for (int i = 0; i < operandsSize; i++) {
+                if (i == 0) {
+                    currResult = mCalculator
+                            .calculate(
+                                    numbers.get(i),
+                                    numbers.get(i + 1),
+                                    operands.get(i))
+                            .getResult();
+                } else {
+                    currResult = mCalculator
+                            .calculate(currResult,
+                                    numbers.get(i + 1),
+                                    operands.get(i))
+                            .getResult();
+                }
+                result.setResult(currResult);
+            }
+        }
+
         mView.onCalculated(result);
+
+        return result.getResult();
     }
 
     @Override
     public void calculateUnaryOperand(Params params) {
-        MathematicalCalculableOperationResult result = mCalculator.calculate(params.getNmu1(), params.getOperand());
+        MathematicalCalculableOperationResult result =
+                mCalculator.calculate(params.getNumbers().get(0), params.getOperands().get(0));
+
+        result.setNumbers(params.getNumbers());
+        result.setOperands(params.getOperands());
         mView.onCalculated(result);
     }
 

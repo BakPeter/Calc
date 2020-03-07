@@ -7,34 +7,18 @@ public class FormulaManager {
     private String mDelimiter;
     private double mValue;
 
-    //+ - X /
-    private ArrayList<String> mOneParamOperandSings;
+    //+ - X / %
+    private ArrayList<String> mOperandsSings;
 
     public FormulaManager(String delimiter, ArrayList<String> oneParamOperandSings) {
         mDelimiter = delimiter;
-        mOneParamOperandSings = oneParamOperandSings;
+        mOperandsSings = oneParamOperandSings;
         init();
     }
 
     public void init() {
         mFormula = new StringBuilder();
         mValue = 0;
-    }
-
-    public StringBuilder appendWithDelimiter(String valueToAppend) {
-        appendWithoutDelimiter(valueToAppend);
-        mFormula.append(mDelimiter);
-
-        return mFormula;
-    }
-
-    public StringBuilder appendWithoutDelimiter(String valueToAppend) {
-        if (mFormula.length() != 0)
-            mFormula.append(mDelimiter);
-
-        mFormula.append(valueToAppend);
-
-        return mFormula;
     }
 
     public StringBuilder getFormula() {
@@ -50,40 +34,41 @@ public class FormulaManager {
     }
 
     public StringBuilder addUnaryOperand(String operandFormatString, String operandSign, String number) {
-        if(operandSign.equals("%")) {
-            if(mFormula.length() == 0) {
-                mFormula.append(number);
-                mFormula.append(operandSign);
-            } else {
-                mFormula.append(operandSign);
+        if (operandSign.equals(mOperandsSings.get(mOperandsSings.size() - 1))) {
+            if (mFormula.length() != 0) {
+                mFormula.append(mDelimiter);
             }
+            mFormula.append(number);
+            mFormula.append(operandSign);
         } else {
-            throw  new IllegalArgumentException("operand " + operandSign + "not implemented");
+            throw new IllegalArgumentException("operand " + operandSign + "not implemented");
         }
 
         return mFormula;
     }
 
     public void addBinaryOperand(String operandSign, String number) {
-        if(mFormula.length() == 0) {
+        if (mFormula.length() == 0) {
             mFormula.append(number);
             mFormula.append(mDelimiter);
             mFormula.append(operandSign);
         } else {
             mFormula.append(mDelimiter);
-            mFormula.append(number);
-            mFormula.append(mDelimiter);
+            if (number != null) {
+                mFormula.append(number);
+                mFormula.append(mDelimiter);
+            }
             mFormula.append(operandSign);
         }
     }
 
-    public boolean containsBinaryOperand() {
-       String formula = mFormula.toString();
+    public void addEquals(String equalsSign, String currNumber) {
+        if (currNumber != null && currNumber.length() > 0) {
+            mFormula.append(mDelimiter);
+            mFormula.append(currNumber);
+        }
 
-       for(int i=0; i<formula.length(); i++) {
-           if(formula.charAt(i) == '%')
-               return true;
-       }
-        return false;
+        mFormula.append(mDelimiter);
+        mFormula.append(equalsSign);
     }
 }
