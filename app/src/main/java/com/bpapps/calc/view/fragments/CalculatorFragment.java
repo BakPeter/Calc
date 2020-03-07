@@ -331,7 +331,6 @@ public class CalculatorFragment extends Fragment
     }
 
     private void onClickEqualsButton() {
-        //TODO private void onClickEqualsButton()
         StringBuilder currNumber = getCurrInput();
         deleteZerozAtEnd(currNumber);
 
@@ -339,11 +338,15 @@ public class CalculatorFragment extends Fragment
             mFormulaManager.addEquals(getResources().getString(R.string.equals_sign), currNumber.toString());
             mFormulaManager.setValue(Double.parseDouble(currNumber.toString()));
             updateTextViewFormulaShower(mFormulaManager.getFormula());
+        } else if (mParams.getNumbers().size() == 1 && mParams.getOperands().size() == 0) {
+            mFormulaManager.addEquals(getResources().getString(R.string.equals_sign), null);
+            mFormulaManager.setValue(Double.parseDouble(currNumber.toString()));
+            updateTextViewFormulaShower(mFormulaManager.getFormula());
         } else if (mParams.getNumbers().size() == mParams.getOperands().size()) {
             mFormulaManager.addEquals(getResources().getString(R.string.equals_sign), currNumber.toString());
             mParams.addNumber(Double.parseDouble(currNumber.toString()));
             mCalculatorPresenter.calculateBinaryOperand(mParams);
-        } else if (mParams.getNumbers().size() > mParams.getOperands().size()){
+        } else if (mParams.getNumbers().size() > mParams.getOperands().size()) {
             mFormulaManager.addEquals(getResources().getString(R.string.equals_sign), null);
             mCalculatorPresenter.calculateBinaryOperand(mParams);
         }
@@ -406,7 +409,7 @@ public class CalculatorFragment extends Fragment
             if (mInput.substring(0, 1).equals(getResources().getString(R.string.digit_0)))
                 return;
 
-            if (mInput.substring(0, 1).equals(minusZero))
+            if (mInput.substring(0, 1).equals(minusZero.toString()))
                 mInput.deleteCharAt(0);
         }
 
