@@ -364,13 +364,13 @@ public class CalculatorFragment extends Fragment
 
     private void clearMemoryDataBase() {
         mMemoryPresenter.clearDataBase();
-        Toast.makeText(requireContext(), "Memory deleted", Toast.LENGTH_LONG).show();
+        Toast.makeText(requireContext(), getString(R.string.memory_deleted_msg), Toast.LENGTH_LONG).show();
     }
 
     private void memoryRecall() {
         MemoryEntry item = mMemoryPresenter.getMemoryItem(0);
         if (item == null) {
-            Toast.makeText(requireContext(), "Memory empty", Toast.LENGTH_LONG).show();
+            Toast.makeText(requireContext(), getString(R.string.memory_empty_msg), Toast.LENGTH_LONG).show();
         } else {
             initInput();
             String num = item.getValue() + "";
@@ -383,12 +383,14 @@ public class CalculatorFragment extends Fragment
         String currInput = getCurrInput().toString();
 
         mMemoryPresenter.addToMemoryItem(Double.parseDouble(currInput));
+        Toast.makeText(requireContext(), getString(R.string.memory_added_msg), Toast.LENGTH_LONG).show();
     }
 
     private void subtractFromMemory() {
         String currInput = getCurrInput().toString();
 
         mMemoryPresenter.subtractFromMemory(Double.parseDouble(currInput));
+        Toast.makeText(requireContext(), getString(R.string.memory_subtracted_msg), Toast.LENGTH_LONG).show();
     }
 
     private void addToMemoryDataBase() {
@@ -526,6 +528,9 @@ public class CalculatorFragment extends Fragment
 
     @Override
     public void onClick(HistoryEntry entry) {
+        initFormula();
+        initInput();
+        mParams.init();
         updateTextViewFormulaShower(entry.getFormula());
         updateTextViewResultInputShower(entry.getValue() + "");
     }
@@ -550,17 +555,24 @@ public class CalculatorFragment extends Fragment
         Resources resources = getResources();
         int indexOfDot = number.indexOf(resources.getString(R.string.dot));
 
-        if (indexOfDot != 1) {
+        if (indexOfDot != -1) {
             if (number.length() - 1 == indexOfDot) {
                 number.deleteCharAt(number.length() - 1);
                 return;
             }
 
             char digit0 = resources.getString(R.string.digit_0).charAt(0);
-            for (int i = number.length() - 1; i < indexOfDot; i--) {
+            for (int i = number.length() - 1; i > indexOfDot; i--) {
                 if (number.charAt(i) == digit0) {
                     number.deleteCharAt(i);
+                } else {
+                    break;
                 }
+            }
+
+            indexOfDot = number.indexOf(resources.getString(R.string.dot));
+            if(indexOfDot == number.length()-1) {
+                number.deleteCharAt(indexOfDot);
             }
         }
     }

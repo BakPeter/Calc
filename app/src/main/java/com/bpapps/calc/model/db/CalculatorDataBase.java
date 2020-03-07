@@ -73,7 +73,8 @@ public class CalculatorDataBase {
     }
 
     public void addToMemoryDataBase(MemoryEntry item) {
-        mMemoryData.add(item);
+
+        mMemoryData.add(0, item);
     }
 
     public void addToMemoryItem(double valueToAdd) {

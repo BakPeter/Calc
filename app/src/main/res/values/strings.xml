@@ -69,6 +69,10 @@
     <string name="no_memory_msg">There\'s nothing saved in your memory</string>
     <string name="empty_formula">""</string>
     <string name="number_of_digits_out_of_allowed_bound_format_msg">Max numbers of digits allowed is %d</string>
+    <string name="memory_deleted_msg">Memory deleted</string>
+    <string name="memory_empty_msg">Memory empty</string>
+    <string name="memory_added_msg">Added to memory\nIf not empty</string>
+    <string name="memory_subtracted_msg">Subtracted from memory\nIf not empty</string>
     =======
 >>>>>>> e9065689d45ff34d706debd169c42a5e52c4e442
 </resources>
