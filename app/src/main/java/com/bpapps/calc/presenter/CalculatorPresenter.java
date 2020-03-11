@@ -69,23 +69,24 @@ public class CalculatorPresenter implements ICalculatorContract.Presenter {
             if (numbersSize == operandsSize)
                 operandsSize--;
 
-            double currResult = 0;
+            Double currResult = new Double(0);
+            MathematicalCalculableOperationResult res;
             for (int i = 0; i < operandsSize; i++) {
                 if (i == 0) {
-                    currResult = mCalculator
-                            .calculate(
-                                    numbers.get(i),
-                                    numbers.get(i + 1),
-                                    operands.get(i))
-                            .getResult();
+                    res = mCalculator.calculate(
+                            numbers.get(i),
+                            numbers.get(i + 1),
+                            operands.get(i));
+                    currResult = res.getResult();
                 } else {
-                    currResult = mCalculator
+                    res = mCalculator
                             .calculate(currResult,
                                     numbers.get(i + 1),
-                                    operands.get(i))
-                            .getResult();
+                                    operands.get(i));
+                    currResult = res.getResult();
                 }
                 result.setResult(currResult);
+                result.setException(res.getException());
             }
         }
 

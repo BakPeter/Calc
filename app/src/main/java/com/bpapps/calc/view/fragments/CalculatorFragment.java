@@ -398,6 +398,7 @@ public class CalculatorFragment extends Fragment
         MemoryEntry item = new MemoryEntry(Double.parseDouble(currInput));
 
         mMemoryPresenter.addToDataBase(item);
+        Toast.makeText(requireContext(), getString(R.string.memory_added_new_item_msg), Toast.LENGTH_LONG).show();
     }
 
     private void onClickDigitButton(String digitStr) {
@@ -408,7 +409,8 @@ public class CalculatorFragment extends Fragment
 
         StringBuilder minusZero = new StringBuilder(getResources().getString(R.string.minus_sign));
         if (mInput.length() == 1) {
-            if (mInput.substring(0, 1).equals(getResources().getString(R.string.digit_0)))
+            if (mInput.substring(0, 1).equals(getResources().getString(R.string.digit_0)) &&
+                    digitStr.equals(getResources().getString(R.string.digit_0)))
                 return;
 
             if (mInput.substring(0, 1).equals(minusZero.toString()))
@@ -429,7 +431,8 @@ public class CalculatorFragment extends Fragment
     @Override
     public void saveHistoryEntry() {
         mCalculatorPresenter.saveFormula(mFormulaManager.getFormula().toString(), mFormulaManager.getValue());
-        mOnHistoryDataBaseChangedListener.onDataBaseChanged();
+        if (mOnHistoryDataBaseChangedListener != null)
+            mOnHistoryDataBaseChangedListener.onDataBaseChanged();
     }
 
     @Override
@@ -488,12 +491,12 @@ public class CalculatorFragment extends Fragment
     }
 
     private void changeInputSign() {
+        //TODO bug fix private void changeInputSign()
         String minusSign = getResources().getString(R.string.minus_sign);
-
         if (mInput.length() > 0) {
             if (mInput.substring(0, 1).equals(minusSign)) {
                 mInput.deleteCharAt(0);
-                mInput.append(getResources().getString(R.string.digit_0));
+                // mInput.append(getResources().getString(R.string.digit_0));
             } else {
                 mInput.insert(0, minusSign);
             }
@@ -506,7 +509,11 @@ public class CalculatorFragment extends Fragment
     }
 
     private StringBuilder getCurrInput() {
-        return new StringBuilder(mTextViewInputAndResultShower.getText());
+        String currInput = mTextViewInputAndResultShower.getText().toString();
+        if(currInput.equals("Cannot divide by zero"))
+            return new StringBuilder(getResources().getString(R.string.digit_0));
+        else
+            return new StringBuilder(currInput);
     }
 
     private void updateTextViewResultInputShower(String text) {
@@ -571,7 +578,7 @@ public class CalculatorFragment extends Fragment
             }
 
             indexOfDot = number.indexOf(resources.getString(R.string.dot));
-            if(indexOfDot == number.length()-1) {
+            if (indexOfDot == number.length() - 1) {
                 number.deleteCharAt(indexOfDot);
             }
         }
